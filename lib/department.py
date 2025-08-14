@@ -139,3 +139,32 @@ class Department:
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    def employees(self):
+        """Return a list of Employee instances for this department"""
+        from employee import Employee  # Import here to avoid circular imports
+        
+        # Debug: Print department info
+        print(f"DEBUG: Department ID = {self.id}")
+        print(f"DEBUG: Department name = {self.name}")
+        
+        # Debug: Check what's in the employees table
+        debug_sql = "SELECT * FROM employees"
+        all_employees = CURSOR.execute(debug_sql).fetchall()
+        print(f"DEBUG: All employees in database: {all_employees}")
+        
+        # Query the database for employees with this department's id
+        sql = """
+            SELECT * FROM employees
+            WHERE department_id = ?
+        """
+        
+        CURSOR.execute(sql, (self.id,))
+        rows = CURSOR.fetchall()
+        
+        print(f"DEBUG: Found {len(rows)} employees for department {self.id}")
+        print(f"DEBUG: Employee rows: {rows}")
+        
+        # Convert each row to an Employee instance
+        return [Employee.instance_from_db(row) for row in rows]
+
+
